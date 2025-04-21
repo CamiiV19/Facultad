@@ -1,0 +1,9 @@
+101  1.5000000000000000E+005 Samsung
+5 10 Smartphone gama media
+Galaxy A12
+102  2.0000000000000000E+005 Apple
+2 5 iPhone ultima generacion
+iPhone 13
+103  1.0000000000000000E+005 Xiaomi
+1 3 Buen celular economico
+Redmi Note 10

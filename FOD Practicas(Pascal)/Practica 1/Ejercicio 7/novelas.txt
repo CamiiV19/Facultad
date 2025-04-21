@@ -1,0 +1,8 @@
+101 3500.50 Drama
+La tregua
+102 4200.00 Comedia
+Esperando la carroza
+103 2999.99 Romance
+Donde termina el amor
+104 5000.00 Terror
+El túnel
