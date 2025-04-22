@@ -1,4 +1,6 @@
 program empresa;
+const
+	valorAlto = 9999;
 type 
 	empleado = record
 		cod: integer;
@@ -8,8 +10,16 @@ type
 	
 	archivo_Comisiones = file of empleado;
 
+procedure leer(var arch: archivo_Comisiones; var reg: empleado);
+begin
+  if(not eof(arch)) then begin
+    readln(arch,reg)
+  end
+  else
+    reg.cod := valorAlto;
+end;
 
-procedure crearArchivoBinario(var arch: archivo_comisiones; nombre: string);
+{procedure crearArchivoBinario(var arch: archivo_comisiones; nombre: string);
 var
 	txt: Text;
 	emp: empleado;
@@ -24,43 +34,31 @@ begin
 	end;
 	close(txt);
 	close(arch);
-end;
+end;}
 
-procedure compactar(var arch: archivo_comisiones; var arch_Compactado: archivo_comisiones);
+procedure compactar(var arch: archivo_comisiones; var arch_Compactado: archivo_Comisiones);
 var
-	actual, aux: empleado;
+	reg, aux: empleado;
 begin
 	reset(arch);
 	rewrite(arch_Compactado);
-
-	if (not eof(arch)) then begin
-		read(arch, aux);
-		while (not eof(arch)) do begin
-			actual := aux;
-			actual.comision := 0;
-			while (aux.cod = actual.cod) do begin
-				actual.nombre := aux.nombre;
-				actual.comision := actual.comision + aux.comision;
-				if (not eof(arch)) then
-					read(arch, aux)
-				else
-					break;
-			end;
-			write(arch_Compactado, actual);
+	leer(arch,reg);
+	while (reg.cod <> valorAlto) do begin
+		aux.cod:= reg.cod; 
+		aux.nom:= reg.nom;
+		aux.comision:= 0; 
+		while (reg.cod <> valorAlto) and (reg.cod = aux.cod) do begin
+			aux.comision := aux.comision + reg.comision;
+			leer(arch,reg);
+		end;
+		write(arch_Compactado, aux);
 		end;
 	end;
-
-	//Para escribir el último empleado si fue el único o quedó sin escribir
-	if (aux.cod = actual.cod) then begin
-		actual.comision := actual.comision + aux.comision;
-		write(arch_Compactado, actual);
-	end;
-
 	close(arch);
-	close(archCompactado);
+	close(arch_Compactado);
 end;
 
-procedure mostrarArchivo(var arch: archivo_comisiones);
+{procedure mostrarArchivo(var arch: archivo_comisiones);
 var
   emp: empleado;
 begin
@@ -74,7 +72,7 @@ begin
 		end;
 	end;
 	close(arch);
-end;
+end;}
 
 var
 	arch_Original, arch_Compactado: archivo_Comisiones;
@@ -84,11 +82,13 @@ begin
 	readln(nomOriginal);
 	write('Ingrese nombre del archivo binario compactado (ej: comisiones_compactado.dat): ');
 	readln(nomCompactado);
-
-	crearArchivoBinario(arch_Original, nomOriginal);
-	compactar(arch_Original, arch_Compactado);
+	
+	assign(arch_Original, nomOriginal);
 	assign(arch_Compactado, nomCompactado);
+	
+	compactar(arch_Original, arch_Compactado);
+	
 	writeln;
-	mostrarArchivo(arch_Compactado);
+	//mostrarArchivo(arch_Compactado);
 end.
 	

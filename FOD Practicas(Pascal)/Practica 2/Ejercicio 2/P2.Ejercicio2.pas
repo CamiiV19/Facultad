@@ -1,6 +1,7 @@
+
 program negocioLimpieza;
 const
-	valorAlto = '9999';
+	valorAlto = 9999;
 type
 	producto = record
 		cod: integer;
@@ -10,45 +11,93 @@ type
 		stockMin: integer;
 	end;
 	
-	venta = record
+	ventas = record
 		cod: integer;
 		cantUV: integer;
 	end;
 	
 	maestro = file of producto;
-	detalle = file of venta;
+	detalle = file of ventas;
 
-procedure actualizar;
+procedure leer(var archivo: detalle; var dato: ventas);
 begin
+	if (not (EOF(archivo))) then
+	begin
+		read(archivo, dato);
+	end
+	else
+		dato.cod:= valoralto;
+end;
+
+procedure actualizarMaestro(var aM: maestro; var aD: detalle);
+var
+	regM: producto;
+	regD: ventas;
+	total: integer;
+begin
+	reset(aM);
+	reset(aD);
 	
+	leer(aD, regD);
+	while(regD.cod <> valorAlto) do begin
+		read(aM, regM);
+		while(regM.cod <> regD.cod) do 
+			read(aM, regM);
+		
+		total := 0;
+		while(regM.cod = regD.cod) do begin
+			//acumular ventas
+			total:= total + regD.cantUV;
+			leer(aD,regD);
+		end;
+		//actualizar stock de ma
+		regM.stockAct := regM.stockAct - total;
+		
+		seek(aM, filepos(aM)-1);
+		write(aM,regM);
+	end;
+	close(aM);
+	close(aD);	
+end;
+
+procedure listarStockMin(var aM: maestro);
+var
+	regM: producto;
+	txt: Text;
+begin
+	reset(aM);
+	assign(txt, 'stock_minimo.txt');
+	rewrite(txt);
+	
+	writeln(txt, 'Productos con stock por debajo del mínimo:');
+	writeln(txt, '------------------------------------------');
+	
+	while (not eof(aM)) do begin
+		read(aM, regM);
+		if (regM.stockAct < regM.stockMin) then begin
+			with regM do
+			begin
+				writeln(txt, 'Cod: ', cod);
+				writeln(txt, 'Nombre: ', nom);
+				writeln(txt, 'Stock actual: ', stockAct);
+				writeln(txt, 'Stock mínimo: ', stockMin);
+			end;
+		end;
+	end;
+	close(txt);
+	close(aM);
 end;
 
 //pp
 var
-	archMa: maestro;
-	archDe: detalle;
-	regM: producto;
-	regD: venta;
-	total: integer;
+	aM: maestro;
+	aD: detalle;
+
 begin
-	assign(archMa, 'maestro');
-	assign(archDe, 'detalle');
-	reset(archMa);
-	reset(archDe);
-	while(not eof(archDe)) do begin
-		read(archMa, regM);
-		read(archDe, regD);
-		while(regM.cod <> regD.cod) do 
-			read(archMa,regM);
-		while(not eof(archDe) and (regM.cod = regD.cod)) do begin
-			regM.precio
-			//actualizar
-			//leo
-			read(archDe, regDe);
-		end;
-		if(not eof(archDe)) then 
-			seek(archDe, filePos(archDe)-1);
-		seek(archMa, filePos(archMa)-1);
-		write(archMa, regM)
-		
+	assign(aM, 'maestro.dat');
+	assign(aD, 'detalle.dat');
+	
+	actualizarMaestro(aM, aD);
+	listarStockMin(aM);
+	
 end.
